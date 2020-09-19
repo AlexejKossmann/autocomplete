@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/AlexejKossmann/autocomplete#readme",
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
     "concurrently": "^5.2.0",
     "nodemon": "^2.0.4",
     "typescript": "^4.0.2"
