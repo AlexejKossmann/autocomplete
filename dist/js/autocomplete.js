@@ -11,22 +11,11 @@ class Complete {
     }
     setDropdownData() {
         this.clearDropdown();
-        let search = this.inputValue;
-        if (!this.caseSensitive) {
-            search = search.toLowerCase();
-        }
-        let patern = '.*' + search.split('').join('.*') + '.*';
-        const regex = new RegExp(patern);
+        let patern = '.*' + this.inputValue.split('').join('\.*') + '.*';
+        const regex = new RegExp(patern, (this.isCaseSensitive === false) ? 'i' : '');
         this.data.forEach(item => {
-            if (this.caseSensitive) {
-                if (regex.test(item)) {
-                    this.dropDownData.push(item);
-                }
-            }
-            else {
-                if (regex.test(item.toLowerCase())) {
-                    this.dropDownData.push(item);
-                }
+            if (regex.test(item)) {
+                this.dropDownData.push(item);
             }
         });
         this.populateDropdown();
@@ -38,11 +27,11 @@ class Complete {
         }
         let elements = document.querySelectorAll(this.selector);
         if (elements.length === 0) {
-            console.error('Not posible to create autocomplete element, id: ' + this.selector + ' not found.');
+            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.selector + ' not found.');
             return;
         }
         if (elements.length > 1) {
-            console.error('Not posible to create autocomplete element, id: ' + this.selector + ' is not unique.');
+            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.selector + ' is not unique.');
             return;
         }
         this.input = elements[0];
@@ -57,11 +46,23 @@ class Complete {
         }
         this.dropDownData.forEach(element => {
             let item = (document.createElement('li'));
+            item.tabIndex = 0;
+            let ouput = (this.highlight === true) ? this.parseHighlighting(element) : element;
             item.classList.add('ac-item');
-            item.innerHTML = element;
+            item.innerHTML = ouput;
+            item.addEventListener('focus', (e) => {
+                console.log(item.innerHTML);
+                this.inputValue = item.innerHTML;
+            });
             this.container.appendChild(item);
         });
         return;
+    }
+    parseHighlighting(element) {
+        // need to loop for long term and to smaller parts of the search string
+        let index = element.indexOf(this.inputValue);
+        let highlight = element.substring(0, index) + '<span>' + element.substring(index, index + this.inputValue.length) + '</span>' + element.substring(index + this.inputValue.length, element.length);
+        return highlight;
     }
     clearDropdown() {
         this.dropDownData = [];
@@ -70,11 +71,11 @@ class Complete {
         }
         return;
     }
-    applyOptions({ selector, data, threshold = 0, caseSensitive = false, highlight = false }) {
+    applyOptions({ selector, data, threshold = 0, isCaseSensitive = false, highlight = false }) {
         this.selector = selector;
         this.data = data;
         this.threshold = threshold;
-        this.caseSensitive = caseSensitive;
+        this.isCaseSensitive = isCaseSensitive;
         this.highlight = highlight;
     }
     init() {

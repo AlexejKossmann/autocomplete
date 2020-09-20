@@ -11,9 +11,15 @@
     list-style: none;
     padding: 0;
     margin-top: 0;
+    border: 1px solid;
 }
 
 .ac-result-container > .ac-item {
     background: white;
-    border: 1px solid;
+    border-top: 1px solid;
+}
+
+.ac-result-container > .ac-item > span {
+    font-weight: 600;
+    color: red;
 }
