@@ -47,7 +47,7 @@ class Complete {
         }
         this.input = elements[0];
         this.container = (document.createElement('ul'));
-        this.container.classList.add('autocomplete-container');
+        this.container.classList.add('ac-result-container');
         (_a = elements[0].parentElement) === null || _a === void 0 ? void 0 : _a.appendChild(this.container);
         return;
     }
@@ -57,7 +57,7 @@ class Complete {
         }
         this.dropDownData.forEach(element => {
             let item = (document.createElement('li'));
-            item.classList.add('autocomplete-item');
+            item.classList.add('ac-item');
             item.innerHTML = element;
             this.container.appendChild(item);
         });
@@ -70,11 +70,12 @@ class Complete {
         }
         return;
     }
-    applyOptions({ selector, data, threshold = 0, caseSensitive = false }) {
+    applyOptions({ selector, data, threshold = 0, caseSensitive = false, highlight = false }) {
         this.selector = selector;
         this.data = data;
         this.threshold = threshold;
         this.caseSensitive = caseSensitive;
+        this.highlight = highlight;
     }
     init() {
         if (this.container.hasChildNodes()) {
@@ -84,6 +85,9 @@ class Complete {
             if (this.input.value.length > this.threshold) {
                 this.inputValue = this.input.value;
                 this.setDropdownData();
+            }
+            if (this.input.value.length <= this.threshold) {
+                this.clearDropdown();
             }
         });
         return;

@@ -8,8 +8,9 @@ class Complete{
     private container: HTMLUListElement;
     private dropDownData: string[];
     private caseSensitive: boolean;
+    private highlight: boolean;
 
-    constructor( options: {selector: string, data: string[], threshold: number, caseSensitive: boolean } ) {
+    constructor( options: {selector: string, data: string[], threshold: number, caseSensitive: boolean, highlight: boolean } ) {
         this.applyOptions(options);
         this.createDropdownContainer();
         this.dropDownData = [];
@@ -67,7 +68,7 @@ class Complete{
         this.input = elements[0];
 
         this.container = <HTMLUListElement>(document.createElement('ul'));
-        this.container.classList.add('autocomplete-container');
+        this.container.classList.add('ac-result-container');
 
         elements[0].parentElement?.appendChild(this.container);
         return;
@@ -81,7 +82,7 @@ class Complete{
 
         this.dropDownData.forEach(element => {
             let item = <HTMLLIElement>(document.createElement('li'));
-            item.classList.add('autocomplete-item');
+            item.classList.add('ac-item');
             item.innerHTML = element;
 
             this.container.appendChild<HTMLLIElement>(item);
@@ -98,12 +99,14 @@ class Complete{
         return;
     }
 
-    private applyOptions( {selector, data, threshold = 0, caseSensitive = false}: {selector: string, data: string[], threshold: number, caseSensitive: boolean} ):void {
+    private applyOptions( {selector, data, threshold = 0, caseSensitive = false, highlight = false}: 
+        {selector: string, data: string[], threshold: number, caseSensitive: boolean, highlight: boolean} ):void {
         
         this.selector = selector;
         this.data = data;
         this.threshold = threshold;
         this.caseSensitive = caseSensitive;
+        this.highlight = highlight;
     }
 
     private init()
@@ -116,6 +119,10 @@ class Complete{
             if(this.input.value.length > this.threshold) {
                 this.inputValue = this.input.value;
                 this.setDropdownData();
+            }
+
+            if(this.input.value.length <= this.threshold) {
+                this.clearDropdown();
             }
         })
         

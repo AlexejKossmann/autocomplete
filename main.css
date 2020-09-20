@@ -1,0 +1,9 @@
+.ac-input > .ac-input-field {
+    width: 100%;
+    border-width: 1px;
+    padding: 0;
+}
+
+.ac-input > label {
+    display: none;
+}

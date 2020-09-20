@@ -5,6 +5,7 @@
   "main": "dist/autocomplete.js",
   "scripts": {
     "dev": "nodemon src/autocomplete.ts",
+    "buildw": "webpack",
     "build": "tsc -p .",
     "watch-ts": "tsc -w",
     "watch-node": "nodemon dist/index.js",
@@ -14,7 +15,7 @@
     "type": "git"
   },
   "author": "Alexej Kossmann",
-  "license": "GNU GPLv3",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/AlexejKossmann/autocomplete/issues"
   },

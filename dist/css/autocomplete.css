@@ -1,0 +1,19 @@
+.ac-input {
+    max-width: 200px;
+}
+
+.ac-input-container {
+    width: 100%;
+}
+
+.ac-result-container {
+    background: transparent;
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+}
+
+.ac-result-container > .ac-item {
+    background: white;
+    border: 1px solid;
+}
