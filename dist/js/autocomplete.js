@@ -11,13 +11,21 @@ class Complete {
     }
     setDropdownData() {
         this.clearDropdown();
-        let patern = '.*' + this.inputValue.split('').join('\.*') + '.*';
-        const regex = new RegExp(patern, (this.isCaseSensitive === false) ? 'i' : '');
-        this.data.forEach(item => {
-            if (regex.test(item)) {
-                this.dropDownData.push(item);
-            }
-        });
+        // process Data based on the type of it
+        // default is json
+        switch (this.dataType) {
+            case 'array':
+                let patern = '.*' + this.inputValue + '.*';
+                const regex = new RegExp(patern, (!this.isCaseSensitive) ? 'i' : '');
+                this.data.forEach(item => {
+                    if (regex.test(item)) {
+                        this.dropDownData.indexOf(item) === -1 ? this.dropDownData.push(item) : console.log(item);
+                    }
+                });
+                break;
+            default:
+                break;
+        }
         this.populateDropdown();
     }
     createDropdownContainer() {
@@ -59,10 +67,14 @@ class Complete {
         return;
     }
     parseHighlighting(element) {
-        // need to loop for long term and to smaller parts of the search string
-        let index = element.indexOf(this.inputValue);
-        let highlight = element.substring(0, index) + '<span>' + element.substring(index, index + this.inputValue.length) + '</span>' + element.substring(index + this.inputValue.length, element.length);
-        return highlight;
+        let index = 0;
+        if (this.isCaseSensitive) {
+            index = element.indexOf(this.inputValue);
+        }
+        else {
+            index = element.toLowerCase().indexOf(this.inputValue.toLowerCase());
+        }
+        return element.substring(0, index) + '<span>' + element.substring(index, index + this.inputValue.length) + '</span>' + element.substring(index + this.inputValue.length, element.length);
     }
     clearDropdown() {
         this.dropDownData = [];
@@ -71,9 +83,10 @@ class Complete {
         }
         return;
     }
-    applyOptions({ selector, data, threshold = 0, isCaseSensitive = false, highlight = false }) {
+    applyOptions({ selector, data, dataType = 'json', threshold = 0, isCaseSensitive = false, highlight = false }) {
         this.selector = selector;
         this.data = data;
+        this.dataType = dataType;
         this.threshold = threshold;
         this.isCaseSensitive = isCaseSensitive;
         this.highlight = highlight;
