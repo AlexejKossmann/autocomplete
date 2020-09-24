@@ -3,30 +3,56 @@ class Complete {
     constructor(options) {
         this.applyOptions(options);
         this.createDropdownContainer();
+        this.preparedData = [];
         this.dropDownData = [];
         this.init();
     }
-    getData() {
-        return this.data;
-    }
     setDropdownData() {
         this.clearDropdown();
-        // process Data based on the type of it
-        // default is json
-        switch (this.dataType) {
-            case 'array':
-                let patern = '.*' + this.inputValue + '.*';
-                const regex = new RegExp(patern, (!this.isCaseSensitive) ? 'i' : '');
-                this.data.forEach(item => {
-                    if (regex.test(item)) {
-                        this.dropDownData.indexOf(item) === -1 ? this.dropDownData.push(item) : console.log(item);
-                    }
-                });
-                break;
-            default:
-                break;
-        }
+        let patern = '.*' + this.inputValue + '.*';
+        const regex = new RegExp(patern, (!this.isCaseSensitive) ? 'i' : '');
+        this.preparedData.forEach(item => {
+            if (item !== null) {
+                if (regex.test(item)) {
+                    void (this.dropDownData.indexOf(item) && this.dropDownData.push(item));
+                }
+            }
+        });
+        this.sortData();
         this.populateDropdown();
+    }
+    sortData() {
+        if (this.dropDownData.length === 0) {
+            return;
+        }
+        this.dropDownData.sort((a, b) => {
+            if (a.indexOf(this.inputValue) === -1) {
+                return 1;
+            }
+            ;
+            if (b.indexOf(this.inputValue) === -1) {
+                return -1;
+            }
+            ;
+            if (a.indexOf(this.inputValue) === 0) {
+                return -1;
+            }
+            ;
+            if (b.indexOf(this.inputValue) === 0) {
+                return 1;
+            }
+            ;
+            if (a < b) {
+                return -1;
+            }
+            ;
+            if (a > b) {
+                return 1;
+            }
+            ;
+            return 0;
+        });
+        this.dropDownData = this.dropDownData.slice(0, this.limit);
     }
     createDropdownContainer() {
         var _a;
@@ -52,18 +78,17 @@ class Complete {
         if (this.dropDownData.length === 0) {
             return;
         }
-        this.dropDownData.forEach(element => {
+        for (let i = 0; i <= (this.dropDownData.length - 1); i++) {
             let item = (document.createElement('li'));
             item.tabIndex = 0;
-            let ouput = (this.highlight === true) ? this.parseHighlighting(element) : element;
+            let ouput = (this.highlight === true) ? this.parseHighlighting(this.dropDownData[i]) : this.dropDownData[i];
             item.classList.add('ac-item');
             item.innerHTML = ouput;
             item.addEventListener('focus', (e) => {
-                console.log(item.innerHTML);
                 this.inputValue = item.innerHTML;
             });
             this.container.appendChild(item);
-        });
+        }
         return;
     }
     parseHighlighting(element) {
@@ -83,18 +108,38 @@ class Complete {
         }
         return;
     }
-    applyOptions({ selector, data, dataType = 'json', threshold = 0, isCaseSensitive = false, highlight = false }) {
-        this.selector = selector;
+    applyOptions({ selector, data, path = '', threshold = 0, isCaseSensitive = false, highlight = false, limit = 10 }) {
         this.data = data;
-        this.dataType = dataType;
-        this.threshold = threshold;
-        this.isCaseSensitive = isCaseSensitive;
         this.highlight = highlight;
+        this.isCaseSensitive = isCaseSensitive;
+        this.limit = limit;
+        this.path = path;
+        this.selector = selector;
+        this.threshold = threshold;
+    }
+    prepareData() {
+        if (Array.isArray(this.data)) {
+            this.data.forEach((element) => {
+                switch (typeof element) {
+                    case 'string':
+                        this.preparedData.push(element);
+                        break;
+                    case 'object':
+                        if (this.path && this.path !== '') {
+                            this.preparedData.push(element.capital);
+                        }
+                        else {
+                        }
+                        break;
+                }
+            });
+        }
     }
     init() {
         if (this.container.hasChildNodes()) {
             this.clearDropdown();
         }
+        this.prepareData();
         this.input.addEventListener('input', () => {
             if (this.input.value.length > this.threshold) {
                 this.inputValue = this.input.value;
