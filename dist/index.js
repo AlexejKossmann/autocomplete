@@ -13,10 +13,10 @@ fetch('./dist/countries.json')
 .then(response => response.json())
 .then((json) => {
     let options = {
-        limit: 4,
+        limit: 3,
+        threshold: 0,
         selector: '#selector',
         data: json,
-        path: 'capital',
         highlight: true
     }
     new Complete(options);

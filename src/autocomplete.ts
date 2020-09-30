@@ -1,21 +1,33 @@
+interface AutocompleteOptions {
+    readonly selector: string,
+    data: string[]|object[]
+readonly threshold: number,
+    readonly isCaseSensitive?: boolean,
+    readonly highlight?: boolean,
+    readonly limit?: number,
+}
+
+const DefaultOptions: AutocompleteOptions = {
+    selector: '',
+    data: [],
+    threshold: 0,
+    isCaseSensitive: false,
+    highlight: false,
+    limit: 10
+}
+
 class Complete{
 
     private container: HTMLUListElement;
-    private data: string[]|object[];
     private dropDownData: string[];
-    private highlight: boolean;
     private input: HTMLInputElement;
     private inputValue: string;
-    private isCaseSensitive: boolean;
-    private limit: number;
-    private path: string;
     private preparedData: string[];
-    private selector: string;
-    private threshold: number;
+    private options: AutocompleteOptions;
 
-    constructor( options: {selector: string, data: string[]|object[], path: string, threshold: number, isCaseSensitive: boolean, highlight: boolean, limit: number } ) 
+    constructor( options: AutocompleteOptions ) 
     {
-        this.applyOptions(options);
+        this.options = { ...DefaultOptions, ...options }
         this.createDropdownContainer();
         this.preparedData = [];
         this.dropDownData = [];
@@ -26,9 +38,8 @@ class Complete{
     public setDropdownData() 
     {
         this.clearDropdown();
-
         let patern = '.*' + this.inputValue + '.*';
-        const regex = new RegExp(patern, ( !this.isCaseSensitive ) ? 'i' : '');
+        const regex = new RegExp(patern, ( !this.options.isCaseSensitive ) ? 'i' : '');
         this.preparedData.forEach(item => {
             if (item !== null) {
                 if (regex.test(item)) {
@@ -60,25 +71,25 @@ class Complete{
             return 0; 
         })
 
-        this.dropDownData = this.dropDownData.slice(0, this.limit);
+        this.dropDownData = this.dropDownData.slice(0, this.options.limit);
     }
 
     // looking for selector and creates new ul element if found
     private createDropdownContainer()
     {
-        if (this.selector === '') {
+        if (this.options.selector === '') {
             return;
         }
 
-        let elements = document.querySelectorAll<HTMLInputElement>(this.selector);
+        let elements = document.querySelectorAll<HTMLInputElement>(this.options.selector);
 
         if(elements.length === 0) {
-            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.selector + ' not found.');
+            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.options.selector + ' not found.');
             return;
         }
         
         if(elements.length > 1) {
-            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.selector + ' is not unique.');
+            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.options.selector + ' is not unique.');
             return;
         }
 
@@ -102,7 +113,7 @@ class Complete{
         for(let i = 0; i <= (this.dropDownData.length - 1); i++) {
             let item = <HTMLLIElement>(document.createElement('li'));
             item.tabIndex = 0;
-            let ouput = ( this.highlight === true ) ? this.parseHighlighting(this.dropDownData[i]): this.dropDownData[i];
+            let ouput = ( this.options.highlight === true ) ? this.parseHighlighting(this.dropDownData[i]): this.dropDownData[i];
             item.classList.add('ac-item');
             item.innerHTML = ouput;
 
@@ -119,7 +130,7 @@ class Complete{
     private parseHighlighting(element: string): string
     {
         let index = 0;
-        if (this.isCaseSensitive) {
+        if (this.options.isCaseSensitive) {
             index = element.indexOf(this.inputValue);
         } else {
             index = element.toLowerCase().indexOf(this.inputValue.toLowerCase());
@@ -138,36 +149,17 @@ class Complete{
         return;
     }
 
-    // applies all the options passed in the opject creation
-    private applyOptions( {selector, data, path = '', threshold = 0, isCaseSensitive = false, highlight = false, limit = 10}: 
-        {selector: string, data: string[]|object[], path: string, threshold: number, isCaseSensitive: boolean, highlight: boolean, limit: number} ):void
-    {
-        
-        this.data = data;
-        this.highlight = highlight;
-        this.isCaseSensitive = isCaseSensitive;
-        this.limit = limit;
-        this.path = path;
-        this.selector = selector;
-        this.threshold = threshold;
-    }
-
     private prepareData() 
     {
-        if (Array.isArray(this.data)){
-            this.data.forEach((element: any) => {
+        if (Array.isArray(this.options.data)){
+            this.options.data.forEach((element: any) => {
                 switch(typeof element) {
                     case 'string':
                         this.preparedData.push(element);
                         break;
                     case 'object':
                         //here its needed to get the values from jsonObject
-                        if (this.path && this.path !== '') {
-                            this.preparedData.push(element.capital);
-                        } else {
-
-                        }                           
-
+                        this.preparedData.push(element.capital);
                         break;
                 }
             })
@@ -184,12 +176,12 @@ class Complete{
 
         
         this.input.addEventListener('input', () => {
-            if(this.input.value.length > this.threshold) {
+            if(this.input.value.length > this.options.threshold) {
                 this.inputValue = this.input.value;
                 this.setDropdownData();
             }
 
-            if(this.input.value.length <= this.threshold) {
+            if(this.input.value.length <= this.options.threshold) {
                 this.clearDropdown();
             }
         })

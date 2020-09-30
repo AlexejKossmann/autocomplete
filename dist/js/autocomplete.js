@@ -1,7 +1,15 @@
 "use strict";
+const DefaultOptions = {
+    selector: '',
+    data: [],
+    threshold: 0,
+    isCaseSensitive: false,
+    highlight: false,
+    limit: 10
+};
 class Complete {
     constructor(options) {
-        this.applyOptions(options);
+        this.options = Object.assign(Object.assign({}, DefaultOptions), options);
         this.createDropdownContainer();
         this.preparedData = [];
         this.dropDownData = [];
@@ -10,7 +18,7 @@ class Complete {
     setDropdownData() {
         this.clearDropdown();
         let patern = '.*' + this.inputValue + '.*';
-        const regex = new RegExp(patern, (!this.isCaseSensitive) ? 'i' : '');
+        const regex = new RegExp(patern, (!this.options.isCaseSensitive) ? 'i' : '');
         this.preparedData.forEach(item => {
             if (item !== null) {
                 if (regex.test(item)) {
@@ -52,20 +60,20 @@ class Complete {
             ;
             return 0;
         });
-        this.dropDownData = this.dropDownData.slice(0, this.limit);
+        this.dropDownData = this.dropDownData.slice(0, this.options.limit);
     }
     createDropdownContainer() {
         var _a;
-        if (this.selector === '') {
+        if (this.options.selector === '') {
             return;
         }
-        let elements = document.querySelectorAll(this.selector);
+        let elements = document.querySelectorAll(this.options.selector);
         if (elements.length === 0) {
-            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.selector + ' not found.');
+            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.options.selector + ' not found.');
             return;
         }
         if (elements.length > 1) {
-            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.selector + ' is not unique.');
+            console.error('Autocomplete: Not possible to create autocomplete element, id: ' + this.options.selector + ' is not unique.');
             return;
         }
         this.input = elements[0];
@@ -81,7 +89,7 @@ class Complete {
         for (let i = 0; i <= (this.dropDownData.length - 1); i++) {
             let item = (document.createElement('li'));
             item.tabIndex = 0;
-            let ouput = (this.highlight === true) ? this.parseHighlighting(this.dropDownData[i]) : this.dropDownData[i];
+            let ouput = (this.options.highlight === true) ? this.parseHighlighting(this.dropDownData[i]) : this.dropDownData[i];
             item.classList.add('ac-item');
             item.innerHTML = ouput;
             item.addEventListener('focus', (e) => {
@@ -93,7 +101,7 @@ class Complete {
     }
     parseHighlighting(element) {
         let index = 0;
-        if (this.isCaseSensitive) {
+        if (this.options.isCaseSensitive) {
             index = element.indexOf(this.inputValue);
         }
         else {
@@ -108,28 +116,15 @@ class Complete {
         }
         return;
     }
-    applyOptions({ selector, data, path = '', threshold = 0, isCaseSensitive = false, highlight = false, limit = 10 }) {
-        this.data = data;
-        this.highlight = highlight;
-        this.isCaseSensitive = isCaseSensitive;
-        this.limit = limit;
-        this.path = path;
-        this.selector = selector;
-        this.threshold = threshold;
-    }
     prepareData() {
-        if (Array.isArray(this.data)) {
-            this.data.forEach((element) => {
+        if (Array.isArray(this.options.data)) {
+            this.options.data.forEach((element) => {
                 switch (typeof element) {
                     case 'string':
                         this.preparedData.push(element);
                         break;
                     case 'object':
-                        if (this.path && this.path !== '') {
-                            this.preparedData.push(element.capital);
-                        }
-                        else {
-                        }
+                        this.preparedData.push(element.capital);
                         break;
                 }
             });
@@ -141,11 +136,11 @@ class Complete {
         }
         this.prepareData();
         this.input.addEventListener('input', () => {
-            if (this.input.value.length > this.threshold) {
+            if (this.input.value.length > this.options.threshold) {
                 this.inputValue = this.input.value;
                 this.setDropdownData();
             }
-            if (this.input.value.length <= this.threshold) {
+            if (this.input.value.length <= this.options.threshold) {
                 this.clearDropdown();
             }
         });
