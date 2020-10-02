@@ -3,6 +3,7 @@ const DefaultOptions = {
     selector: '',
     data: [],
     threshold: 0,
+    key: '',
     isCaseSensitive: false,
     highlight: false,
     limit: 10
@@ -124,7 +125,20 @@ class Complete {
                         this.preparedData.push(element);
                         break;
                     case 'object':
-                        this.preparedData.push(element.capital);
+                        Object.keys(element).forEach((value) => {
+                            if (element[value] === null) {
+                                return;
+                            }
+                            if (typeof element[value] !== 'string') {
+                                return;
+                            }
+                            if (this.options.key === '') {
+                                this.preparedData.push(element[value]);
+                            }
+                            if (this.options.key === value) {
+                                this.preparedData.push(element[value]);
+                            }
+                        });
                         break;
                 }
             });

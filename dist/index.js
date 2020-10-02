@@ -1,4 +1,4 @@
-// let dumyData = ['Berlin', 'Leipzig', 'London', 'Moscow', 'Washington', 'Tokio', 'Dresden'];
+let dumyData = ['Berlin', 'Leipzig', 'London', 'Moscow', 'Washington', 'Tokio', 'Dresden'];
 
 // let options = {
 //     selector: '#selector',
@@ -13,9 +13,9 @@ fetch('./dist/countries.json')
 .then(response => response.json())
 .then((json) => {
     let options = {
-        limit: 3,
         threshold: 0,
         selector: '#selector',
+        // key: 'capital',
         data: json,
         highlight: true
     }

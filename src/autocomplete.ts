@@ -1,7 +1,8 @@
 interface AutocompleteOptions {
     readonly selector: string,
     data: string[]|object[]
-readonly threshold: number,
+    readonly threshold: number,
+    readonly key: string,
     readonly isCaseSensitive?: boolean,
     readonly highlight?: boolean,
     readonly limit?: number,
@@ -11,6 +12,7 @@ const DefaultOptions: AutocompleteOptions = {
     selector: '',
     data: [],
     threshold: 0,
+    key: '',
     isCaseSensitive: false,
     highlight: false,
     limit: 10
@@ -156,11 +158,24 @@ class Complete{
                 switch(typeof element) {
                     case 'string':
                         this.preparedData.push(element);
-                        break;
+                    break;
                     case 'object':
                         //here its needed to get the values from jsonObject
-                        this.preparedData.push(element.capital);
-                        break;
+                        Object.keys(element).forEach((value) => {
+                            if (element[value] === null) {
+                                return;
+                            }
+                            if (typeof element[value] !== 'string') {
+                                return;
+                            }
+                            if (this.options.key === '') {
+                                this.preparedData.push(element[value]);
+                            }
+                            if (this.options.key === value) {
+                                this.preparedData.push(element[value]);                            
+                            }
+                        })
+                    break;
                 }
             })
         }
