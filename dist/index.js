@@ -15,7 +15,8 @@ fetch('./dist/countries.json')
     let options = {
         threshold: 0,
         selector: '#selector',
-        // key: 'capital',
+        key: 'capital',
+        debounce: 200,
         data: json,
         highlight: true
     }

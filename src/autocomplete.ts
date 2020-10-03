@@ -1,6 +1,7 @@
 interface AutocompleteOptions {
     readonly selector: string,
-    data: string[]|object[]
+    readonly debounce: number,
+    data: string[]|object[],
     readonly threshold: number,
     readonly key: string,
     readonly isCaseSensitive?: boolean,
@@ -15,7 +16,8 @@ const DefaultOptions: AutocompleteOptions = {
     key: '',
     isCaseSensitive: false,
     highlight: false,
-    limit: 10
+    limit: 10,
+    debounce: 100
 }
 
 class Complete{
@@ -51,7 +53,6 @@ class Complete{
         })
 
         this.sortData();
-
         this.populateDropdown();
     }
 
@@ -112,6 +113,8 @@ class Complete{
             return;
         }
 
+
+
         for(let i = 0; i <= (this.dropDownData.length - 1); i++) {
             let item = <HTMLLIElement>(document.createElement('li'));
             item.tabIndex = 0;
@@ -160,25 +163,63 @@ class Complete{
                         this.preparedData.push(element);
                     break;
                     case 'object':
-                        //here its needed to get the values from jsonObject
-                        Object.keys(element).forEach((value) => {
-                            if (element[value] === null) {
-                                return;
-                            }
-                            if (typeof element[value] !== 'string') {
-                                return;
-                            }
-                            if (this.options.key === '') {
-                                this.preparedData.push(element[value]);
-                            }
-                            if (this.options.key === value) {
-                                this.preparedData.push(element[value]);                            
-                            }
-                        })
-                    break;
+                        this.getValuesFromObject(element);
+                    break; 
+                }
+                if (Array.isArray(element)) {
+                    this.getValuesFromArray(element);
                 }
             })
         }
+    }
+
+    private getValuesFromObject(element: any): void
+    {
+        Object.keys(element).forEach((value) => {
+            if (element[value] === null) {
+                return;
+            }
+            if (element)
+
+            if (Array.isArray(element[value])) {
+                this.getValuesFromArray(element[value]);   
+            }
+            if (typeof element[value] === 'object') {
+                this.getValuesFromObject(element[value]);
+            }
+            if (typeof element[value] === 'number') {
+                this.preparedData.push(element[value].toString());
+            }
+            if (this.options.key === '') {
+                this.preparedData.push(element[value]);
+            }
+            if (this.options.key === value) {
+                this.preparedData.push(element[value]);                            
+            }
+        })
+        return;
+    }
+
+    private getValuesFromArray(array: any[]): void
+    {
+        array.forEach(element => {
+            if (typeof element === 'undefined') {
+                return;
+            }
+            if (typeof element === 'object') {
+                this.getValuesFromObject(element);
+            }
+            if (typeof element === 'string') {
+                this.preparedData.push(element)
+            }
+            if (Array.isArray(element)) {
+                this.getValuesFromObject(element);
+            }
+            if (typeof element === 'number') {
+                this.preparedData.push(element.toString());
+            }
+            return;
+        })
     }
 
     private init()
@@ -193,7 +234,9 @@ class Complete{
         this.input.addEventListener('input', () => {
             if(this.input.value.length > this.options.threshold) {
                 this.inputValue = this.input.value;
-                this.setDropdownData();
+                setTimeout(() => {
+                    this.setDropdownData();
+                }, this.options.debounce);
             }
 
             if(this.input.value.length <= this.options.threshold) {
