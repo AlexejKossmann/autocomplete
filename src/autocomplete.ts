@@ -1,7 +1,7 @@
 interface AutocompleteOptions {
     readonly selector: string,
     readonly debounce: number,
-    data: string[]|object[],
+    data: string[]|object[]|Function,
     readonly threshold: number,
     readonly key: string,
     readonly isCaseSensitive?: boolean,
@@ -112,8 +112,6 @@ class Complete{
         if (this.dropDownData.length === 0) {
             return;
         }
-
-
 
         for(let i = 0; i <= (this.dropDownData.length - 1); i++) {
             let item = <HTMLLIElement>(document.createElement('li'));
@@ -230,7 +228,6 @@ class Complete{
 
         this.prepareData();
 
-        
         this.input.addEventListener('input', () => {
             if(this.input.value.length > this.options.threshold) {
                 this.inputValue = this.input.value;
