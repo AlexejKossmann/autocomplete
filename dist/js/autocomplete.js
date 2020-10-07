@@ -95,7 +95,9 @@ class Complete {
             item.classList.add('ac-item');
             item.innerHTML = ouput;
             item.addEventListener('focus', (e) => {
-                this.inputValue = item.innerHTML;
+                this.inputValue = item.innerHTML.replace('<span>', '').replace('</span>', '');
+                this.input.value = this.inputValue;
+                this.clearDropdown();
             });
             this.container.appendChild(item);
         }
@@ -194,6 +196,13 @@ class Complete {
             if (this.input.value.length <= this.options.threshold) {
                 this.clearDropdown();
             }
+        });
+        this.input.addEventListener('focus', () => {
+            if (this.inputValue !== '') {
+                this.setDropdownData();
+            }
+        });
+        this.input.addEventListener('blur', () => {
         });
         return;
     }
